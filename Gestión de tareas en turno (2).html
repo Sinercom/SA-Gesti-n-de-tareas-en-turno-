@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Planilla de gestión de tareas - SINERCOM</title>
+    <style>
+        /* --- ESTILOS (idénticos a la versión anterior) --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 1100px;
+            width: 100%;
+            background: #ffffff;
+            padding: 25px 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            border: 1px solid #d0d7de;
+        }
+        .logo-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e9edf2;
+            padding-bottom: 12px;
+        }
+        .logo-header .logo-text {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0b3b5c;
+            letter-spacing: 2px;
+        }
+        .logo-header .logo-text .com-azul { color: #2563eb; }
+        h1 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #1e293b;
+            text-align: center;
+            margin: 5px 0 15px 0;
+        }
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 6px;
+        }
+        .tab-btn {
+            padding: 8px 20px;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #64748b;
+            cursor: pointer;
+            border-radius: 6px 6px 0 0;
+            transition: 0.2s;
+        }
+        .tab-btn:hover { background: #f1f5f9; color: #1e293b; }
+        .tab-btn.active {
+            background: #e2e8f0;
+            color: #0f172a;
+            border-bottom: 3px solid #2563eb;
+        }
+        .tab-content { display: none; animation: fade 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fade { from { opacity: 0.3; } to { opacity: 1; } }
+        .header-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px solid #e2e8f0;
+        }
+        .header-grid .field-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .header-grid label { font-weight: 600; color: #334155; font-size: 0.95rem; }
+        .header-grid input[type="date"] {
+            padding: 6px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background: white;
+        }
+        .header-grid select {
+            padding: 6px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background: white;
+            min-width: 160px;
+        }
+        .reloj {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: #0b3b5c;
+            background: #e6f0fa;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #b6cfe2;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            display: inline-block;
+        }
+        .task-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+        .task-table td, .task-table th {
+            padding: 10px 12px;
+            border: 1px solid #dde3e9;
+            vertical-align: middle;
+        }
+        .task-table .label-cell {
+            font-weight: 500;
+            color: #1e293b;
+            background-color: #f9fafb;
+            width: 40%;
+        }
+        .task-table .field-cell {
+            background-color: #ffffff;
+            width: 60%;
+        }
+        .task-table .field-cell select,
+        .task-table .field-cell input[type="text"] {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background: white;
+        }
+        .task-table .checkbox-cell { text-align: center; }
+        .task-table .checkbox-cell input[type="checkbox"] {
+            width: 20px; height: 20px; accent-color: #2563eb; cursor: pointer;
+        }
+        .ronda-selects {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        .ronda-selects .ronda-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex: 1 0 auto;
+            min-width: 120px;
+        }
+        .ronda-selects .ronda-item label {
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #334155;
+            white-space: nowrap;
+        }
+        .ronda-selects .ronda-item select {
+            flex: 1;
+            padding: 4px 6px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            background: white;
+            min-width: 100px;
+        }
+        .checklist-subtable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 4px;
+        }
+        .checklist-subtable td {
+            padding: 6px 10px;
+            border: none;
+            border-bottom: 1px dashed #e2e8f0;
+            background: transparent;
+        }
+        .checklist-subtable .item-label { font-weight: 400; color: #1e293b; width: 70%; }
+        .checklist-subtable .item-check { text-align: center; width: 30%; }
+        .checklist-subtable .item-check input[type="checkbox"] {
+            width: 18px; height: 18px; accent-color: #2563eb; cursor: pointer;
+        }
+        .checklist-header {
+            font-weight: 600;
+            background-color: #f1f5f9 !important;
+            text-align: center;
+        }
+        .parentesis {
+            font-weight: 400;
+            color: #475569;
+        }
+        .observaciones-area {
+            width: 100%;
+            min-height: 80px;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+        }
+        .receptor-row { background: #f8fafc; }
+        .receptor-row .label-cell { font-weight: 600; }
+        .campo-hora-final {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f1f5f9;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.95rem;
+        }
+        .campo-hora-final span { font-weight: 600; color: #1e293b; }
+        .actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            background: #e9edf2;
+            color: #1e293b;
+        }
+        .btn:hover { background: #d0d7de; }
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-success { background: #16a34a; color: white; }
+        .btn-success:hover { background: #15803d; }
+        .btn-danger { background: #dc2626; color: white; }
+        .btn-danger:hover { background: #b91c1c; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-warning:hover { background: #d97706; }
+        .btn:active { transform: scale(0.97); }
+        .historial-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        .historial-table th {
+            background: #f1f5f9;
+            text-align: left;
+            padding: 10px 8px;
+            border-bottom: 2px solid #dde3e9;
+        }
+        .historial-table td {
+            padding: 8px;
+            border-bottom: 1px solid #e9edf2;
+            vertical-align: middle;
+        }
+        .historial-table tr:hover { background: #f8fafc; cursor: pointer; }
+        .historial-table .acciones {
+            display: flex;
+            gap: 6px;
+        }
+        .historial-table .acciones button {
+            padding: 4px 10px;
+            font-size: 0.75rem;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: white;
+            max-width: 700px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .modal-box h2 { margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
+        .modal-box .close-btn {
+            position: absolute;
+            top: 12px; right: 18px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #64748b;
+            background: none;
+            border: none;
+        }
+        .modal-box .close-btn:hover { color: #0f172a; }
+        .modal-box table { width: 100%; border-collapse: collapse; }
+        .modal-box table td { padding: 6px 8px; border-bottom: 1px solid #f1f5f9; }
+        .modal-box table td:first-child { font-weight: 500; width: 40%; }
+        .aviso-sandbox {
+            background: #fef9e7;
+            border: 1px solid #f5cba7;
+            color: #7d6608;
+            padding: 8px 14px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+        @media (max-width: 700px) {
+            .container { padding: 15px; }
+            .header-grid { flex-direction: column; align-items: stretch; gap: 10px; }
+            .task-table .label-cell { width: 50%; }
+            .task-table .field-cell { width: 50%; }
+            .logo-header .logo-text { font-size: 1.5rem; }
+            .ronda-selects { flex-direction: column; align-items: stretch; }
+            .ronda-selects .ronda-item { min-width: unset; }
+        }
+        @media print {
+            body { background: white; padding: 0.5in; }
+            .container { box-shadow: none; border: none; padding: 0; }
+            .actions, .tabs, .btn, .tab-btn { display: none !important; }
+            .tab-content { display: block !important; }
+            .tab-content#tab-historial { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- ===== LOGO SINERCOM ===== -->
+    <div class="logo-header">
+        <div class="logo-text">
+            SINER<span class="com-azul">COM</span>
+        </div>
+    </div>
+
+    <h1>📋 Gestión de tareas en turno</h1>
+
+    <!-- Aviso si localStorage no está disponible -->
+    <div id="avisoStorage" class="aviso-sandbox" style="display:none;">
+        ⚠️ El almacenamiento local no está disponible en este entorno. Los registros se guardarán en memoria y se perderán al recargar la página.
+    </div>
+
+    <!-- Pestañas -->
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="tab-planilla">📝 Planilla</button>
+        <button class="tab-btn" data-tab="tab-historial">📂 Historial (<span id="contadorHistorial">0</span>)</button>
+    </div>
+
+    <!-- ================= TAB PLANILLA ================= -->
+    <div id="tab-planilla" class="tab-content active">
+        <form id="planillaForm">
+            <!-- Encabezado -->
+            <div class="header-grid">
+                <div class="field-group">
+                    <label for="fecha">📅 Fecha:</label>
+                    <input type="date" id="fecha" name="fecha" />
+                    <span class="reloj" id="relojTiempoReal">--:--:--</span>
+                </div>
+                <div class="field-group">
+                    <label for="coordinador">👤 Coordinador:</label>
+                    <select id="coordinador" name="coordinador" class="colaborador-select">
+                        <option value="">-- Seleccionar --</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Tabla de tareas -->
+            <table class="task-table">
+                <tbody>
+                    <!-- VERIFICACIÓN DE NOVEDADES -->
+                    <tr>
+                        <td colspan="2" style="padding:0; border:1px solid #dde3e9;">
+                            <table class="checklist-subtable">
+                                <tr><td colspan="2" class="checklist-header">✔ Verificación de novedades turno anterior:</td></tr>
+                                <tr><td class="item-label">Baños estación</td><td class="item-check"><input type="checkbox" name="verificacion_banios_estacion" /></td></tr>
+                                <tr><td class="item-label">Baños transportistas</td><td class="item-check"><input type="checkbox" name="verificacion_banios_transportistas" /></td></tr>
+                                <tr><td class="item-label">Veredas</td><td class="item-check"><input type="checkbox" name="verificacion_veredas" /></td></tr>
+                                <tr><td class="item-label">Surtidores</td><td class="item-check"><input type="checkbox" name="verificacion_surtidores" /></td></tr>
+                                <tr><td class="item-label">Cestos</td><td class="item-check"><input type="checkbox" name="verificacion_cestos" /></td></tr>
+                                <tr><td class="item-label">Predio</td><td class="item-check"><input type="checkbox" name="verificacion_predio" /></td></tr>
+                                <tr><td class="item-label">Consumibles</td><td class="item-check"><input type="checkbox" name="verificacion_consumibles" /></td></tr>
+                                <tr><td class="item-label">Estado oficina</td><td class="item-check"><input type="checkbox" name="verificacion_estado_oficina" /></td></tr>
+                                <tr><td class="item-label">Cenefa Spot y Deck</td><td class="item-check"><input type="checkbox" name="verificacion_cenefa_spot_deck" /></td></tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- OBSERVACIONES -->
+                    <tr>
+                        <td class="label-cell" style="vertical-align:top; background:#f9fafb;">
+                            <strong>📝 OBSERVACIONES:</strong>
+                        </td>
+                        <td class="field-cell" style="padding:6px 10px;">
+                            <textarea name="observaciones" class="observaciones-area" placeholder="Escriba aquí las observaciones..."></textarea>
+                        </td>
+                    </tr>
+
+                    <!-- LIMPIEZA DE BAÑOS -->
+                    <tr><td class="label-cell">🧹 Limpieza de baños.</td><td class="field-cell checkbox-cell"><input type="checkbox" name="limpieza_banios" /></td></tr>
+                    
+                    <!-- RONDA -->
+                    <tr>
+                        <td class="label-cell">🔄 Ronda:</td>
+                        <td class="field-cell">
+                            <div class="ronda-selects">
+                                <div class="ronda-item">
+                                    <label>Ronda 1</label>
+                                    <select name="ronda1" class="colaborador-select">
+                                        <option value="">-- Seleccionar --</option>
+                                    </select>
+                                </div>
+                                <div class="ronda-item">
+                                    <label>Ronda 2</label>
+                                    <select name="ronda2" class="colaborador-select">
+                                        <option value="">-- Seleccionar --</option>
+                                    </select>
+                                </div>
+                                <div class="ronda-item">
+                                    <label>Ronda 3</label>
+                                    <select name="ronda3" class="colaborador-select">
+                                        <option value="">-- Seleccionar --</option>
+                                    </select>
+                                </div>
+                                <div class="ronda-item">
+                                    <label>Ronda 4</label>
+                                    <select name="ronda4" class="colaborador-select">
+                                        <option value="">-- Seleccionar --</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- TAREAS DIARIAS -->
+                    <tr><td class="label-cell">🏖️ Barrido de playa</td><td class="field-cell"><select name="barrido_playa" class="colaborador-select"><option value="">-- Realizado por --</option></select></td></tr>
+                    <tr><td class="label-cell">🚶 Barrido de vereda perimetral y sector de inflado</td><td class="field-cell"><select name="barrido_vereda" class="colaborador-select"><option value="">-- Realizado por --</option></select></td></tr>
+                    <tr><td class="label-cell">👀 Recorrida predio</td><td class="field-cell"><select name="recorrida_predio" class="colaborador-select"><option value="">-- Realizado por --</option></select></td></tr>
+                    <tr><td class="label-cell">🗑️ Retiro basura de cestos en predio y surtidores <span class="parentesis">(una vez por turno)</span></td><td class="field-cell"><select name="retiro_basura" class="colaborador-select"><option value="">-- Realizado por --</option></select></td></tr>
+                    <tr><td class="label-cell">🚻 Repaso baños transportistas <span class="parentesis">(fin de cada turno)</span></td><td class="field-cell"><select name="repaso_banios_transportistas" class="colaborador-select"><option value="">-- Realizado por --</option></select></td></tr>
+
+                    <!-- TURNO NOCHE (todos los días) -->
+                    <tr><td class="label-cell">💡 Cenefa Spot <span class="parentesis">(todos los días turno noche)</span></td><td class="field-cell"><select name="cenefa_spot" class="colaborador-select"><option value="">-- Realizado por --</option></select></td></tr>
+                    <tr><td class="label-cell">⛽ Limpieza de surtidores <span class="parentesis">(todos los días turno noche)</span></td><td class="field-cell"><select name="limpieza_surtidores" class="colaborador-select"><option value="">-- Realizado por --</option></select></td></tr>
+
+                    <!-- DÍAS ESPECÍFICOS -->
+                    <tr><td class="label-cell">🛢️ Limpieza de Boca de Tanques y medición <span class="parentesis">(Martes por la noche)</span></td><td class="field-cell"><select name="limpieza_boca_tanques" class="colaborador-select"><option value="">-- Realizado por --</option></select></td></tr>
+                    <tr><td class="label-cell">🔧 Limpieza rejillas perimetrales <span class="parentesis">(miércoles turno noche)</span></td><td class="field-cell"><select name="limpieza_rejillas" class="colaborador-select"><option value="">-- Realizado por --</option></select></td></tr>
+                    <tr><td class="label-cell">🏢 Limpieza oficina <span class="parentesis">(lunes turno noche)</span></td><td class="field-cell"><select name="limpieza_oficina" class="colaborador-select"><option value="">-- Realizado por --</option></select></td></tr>
+                    <tr><td class="label-cell">🪵 Deck <span class="parentesis">(Domingos y Viernes Turno Noche)</span></td><td class="field-cell"><select name="deck_domingos_viernes" class="colaborador-select"><option value="">-- Realizado por --</option></select></td></tr>
+
+                    <!-- RECEPTOR -->
+                    <tr class="receptor-row"><td class="label-cell"><strong>Receptor:</strong></td>
+                        <td class="field-cell"><select name="receptor" class="colaborador-select"><option value="">-- Seleccionar --</option></select></td>
+                    </tr>
+                    <tr style="display:none;"><td colspan="2"><input type="hidden" id="horaFinal" name="hora_final" value="" /></td></tr>
+                </tbody>
+            </table>
+
+            <!-- Hora final -->
+            <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
+                <div class="campo-hora-final">
+                    <span>⏱️ Hora de finalización:</span>
+                    <span id="horaFinalDisplay">(al guardar)</span>
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="actions">
+                <button type="reset" class="btn">🗑️ Limpiar</button>
+                <button type="button" class="btn btn-success" id="btnGuardar">✅ Guardar turno</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- ================= TAB HISTORIAL ================= -->
+    <div id="tab-historial" class="tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+            <h2 style="margin:0;">📜 Registros guardados</h2>
+            <button class="btn btn-warning" id="btnDescartarTodos">📥 Descartar todos los informes</button>
+        </div>
+        <div id="historialContainer">
+            <p style="color:#64748b;">No hay registros guardados aún.</p>
+        </div>
+    </div>
+
+    <!-- ================= MODAL DETALLE ================= -->
+    <div class="modal-overlay" id="modalDetalle">
+        <div class="modal-box">
+            <button class="close-btn" id="modalCerrar">&times;</button>
+            <h2>📄 Detalle del turno</h2>
+            <div id="modalContenido"></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // ========== LISTA DE COLABORADORES ==========
+    const colaboradores = [
+        "Alejandro Volken", "Oscar Keler", "Sabrina Reible",
+        "David Benitez", "Victor Monzon", "Natalia Emmer",
+        "Luis Heinen", "Leandro Bancho", "Leonardo Requena"
+    ].sort();
+
+    // ========== POBLAR SELECTS ==========
+    function poblarSelects() {
+        document.querySelectorAll('.colaborador-select').forEach(select => {
+            const actual = select.value;
+            select.innerHTML = '<option value="">-- Seleccionar --</option>';
+            colaboradores.forEach(n => {
+                const opt = document.createElement('option');
+                opt.value = n;
+                opt.textContent = n;
+                select.appendChild(opt);
+            });
+            if (actual && colaboradores.includes(actual)) select.value = actual;
+        });
+    }
+
+    // ========== RELOJ ==========
+    function actualizarReloj() {
+        const a = new Date();
+        const h = String(a.getHours()).padStart(2,'0');
+        const m = String(a.getMinutes()).padStart(2,'0');
+        const s = String(a.getSeconds()).padStart(2,'0');
+        document.getElementById('relojTiempoReal').textContent = `${h}:${m}:${s}`;
+    }
+    setInterval(actualizarReloj, 1000);
+    actualizarReloj();
+
+    // ========== FECHA ACTUAL ==========
+    function setFechaActual() {
+        const h = new Date();
+        document.getElementById('fecha').value = `${h.getFullYear()}-${String(h.getMonth()+1).padStart(2,'0')}-${String(h.getDate()).padStart(2,'0')}`;
+    }
+
+    // ========== GESTIÓN DEL HISTORIAL CON FALLBACK ==========
+    let memoriaRegistros = []; // respaldo en memoria
+
+    function isLocalStorageAvailable() {
+        try {
+            const test = '__storage_test__';
+            localStorage.setItem(test, test);
+            localStorage.removeItem(test);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function getHistorial() {
+        if (isLocalStorageAvailable()) {
+            try {
+                const data = localStorage.getItem('historialTurnos');
+                return data ? JSON.parse(data) : [];
+            } catch { return []; }
+        } else {
+            // Mostrar aviso
+            document.getElementById('avisoStorage').style.display = 'block';
+            return memoriaRegistros;
+        }
+    }
+
+    function setHistorial(registros) {
+        if (isLocalStorageAvailable()) {
+            try {
+                localStorage.setItem('historialTurnos', JSON.stringify(registros));
+            } catch (e) {
+                // fallback a memoria
+                memoriaRegistros = registros;
+            }
+        } else {
+            memoriaRegistros = registros;
+        }
+        actualizarContador();
+        renderizarHistorial();
+    }
+
+    function actualizarContador() {
+        const registros = getHistorial();
+        document.getElementById('contadorHistorial').textContent = registros.length;
+    }
+
+    // ========== RENDERIZAR TABLA HISTORIAL ==========
+    function renderizarHistorial() {
+        const container = document.getElementById('historialContainer');
+        const registros = getHistorial();
+        if (registros.length === 0) {
+            container.innerHTML = '<p style="color:#64748b;">No hay registros guardados aún.</p>';
+            return;
+        }
+        let html = `<table class="historial-table">
+            <thead><tr>
+                <th>Fecha</th><th>Hora inicio</th><th>Hora fin</th><th>Coordinador</th><th>Receptor</th><th>Acciones</th>
+            </tr></thead><tbody>`;
+        registros.forEach((reg, idx) => {
+            html += `<tr data-index="${idx}">
+                <td>${reg.fecha || ''}</td>
+                <td>${reg.horaInicio || ''}</td>
+                <td>${reg.horaFinal || ''}</td>
+                <td>${reg.coordinador || ''}</td>
+                <td>${reg.receptor || ''}</td>
+                <td class="acciones">
+                    <button class="btn btn-primary" style="padding:2px 10px; font-size:0.75rem;" onclick="verDetalle(${idx})">Ver</button>
+                    <button class="btn btn-danger" style="padding:2px 10px; font-size:0.75rem;" onclick="eliminarRegistro(${idx})">Eliminar</button>
+                </td>
+            </tr>`;
+        });
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+    }
+
+    // ========== VER DETALLE (modal) ==========
+    function verDetalle(idx) {
+        const registros = getHistorial();
+        if (!registros[idx]) return;
+        const reg = registros[idx];
+        const modal = document.getElementById('modalDetalle');
+        const contenido = document.getElementById('modalContenido');
+
+        let html = `<table>`;
+        for (const [clave, valor] of Object.entries(reg)) {
+            if (clave === 'id') continue;
+            html += `<tr><td>${clave}</td><td>${valor !== undefined && valor !== null ? valor : ''}</td></tr>`;
+        }
+        html += `</table>`;
+        contenido.innerHTML = html;
+        modal.classList.add('active');
+    }
+
+    // Cerrar modal
+    document.getElementById('modalCerrar').addEventListener('click', () => {
+        document.getElementById('modalDetalle').classList.remove('active');
+    });
+    document.getElementById('modalDetalle').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) document.getElementById('modalDetalle').classList.remove('active');
+    });
+
+    // ========== ELIMINAR REGISTRO INDIVIDUAL ==========
+    function eliminarRegistro(idx) {
+        if (!confirm('¿Eliminar este registro?')) return;
+        let registros = getHistorial();
+        registros.splice(idx, 1);
+        setHistorial(registros);
+    }
+
+    // ========== DESCARTAR TODOS (con clave) ==========
+    document.getElementById('btnDescartarTodos').addEventListener('click', function() {
+        const registros = getHistorial();
+        if (registros.length === 0) {
+            alert('No hay registros para descartar.');
+            return;
+        }
+
+        const clave = prompt('Ingrese la clave para descartar todos los informes:');
+        if (clave === null) return;
+
+        if (clave !== 'admin123') {
+            alert('❌ Clave incorrecta. No se pueden descartar los informes.');
+            return;
+        }
+
+        if (!confirm(`Se descargará un archivo .txt con ${registros.length} registro(s) y luego se eliminarán del historial. ¿Continuar?`)) {
+            return;
+        }
+
+        let contenido = '=== INFORME DE TURNOS DESCARTADOS ===\n';
+        contenido += `Fecha de descarga: ${new Date().toLocaleString()}\n`;
+        contenido += `Total de registros: ${registros.length}\n\n`;
+        registros.forEach((reg, i) => {
+            contenido += `--- Registro #${i+1} ---\n`;
+            for (const [clave, valor] of Object.entries(reg)) {
+                if (clave === 'id') continue;
+                contenido += `${clave}: ${valor || ''}\n`;
+            }
+            contenido += '\n';
+        });
+
+        const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `informes_descartados_${new Date().toISOString().slice(0,10)}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        setHistorial([]);
+        alert('✅ Todos los registros han sido descartados y el archivo .txt se ha descargado.');
+    });
+
+    // ========== GUARDAR NUEVO REGISTRO ==========
+    document.getElementById('btnGuardar').addEventListener('click', function() {
+        const form = document.getElementById('planillaForm');
+        const formData = new FormData(form);
+
+        const ahora = new Date();
+        const horaFinalStr = ahora.toLocaleTimeString('es-AR', { hour12: false });
+        document.getElementById('horaFinal').value = horaFinalStr;
+        document.getElementById('horaFinalDisplay').textContent = horaFinalStr;
+
+        const getCheck = (name) => formData.get(name) === 'on' ? '✅' : '❌';
+
+        const registro = {
+            id: Date.now(),
+            fecha: document.getElementById('fecha').value,
+            horaInicio: document.getElementById('relojTiempoReal').textContent,
+            horaFinal: horaFinalStr,
+            coordinador: formData.get('coordinador') || '',
+            receptor: formData.get('receptor') || '',
+            ronda1: formData.get('ronda1') || '',
+            ronda2: formData.get('ronda2') || '',
+            ronda3: formData.get('ronda3') || '',
+            ronda4: formData.get('ronda4') || '',
+            observaciones: formData.get('observaciones') || '',
+            verificacion_banios_estacion: getCheck('verificacion_banios_estacion'),
+            verificacion_banios_transportistas: getCheck('verificacion_banios_transportistas'),
+            verificacion_veredas: getCheck('verificacion_veredas'),
+            verificacion_surtidores: getCheck('verificacion_surtidores'),
+            verificacion_cestos: getCheck('verificacion_cestos'),
+            verificacion_predio: getCheck('verificacion_predio'),
+            verificacion_consumibles: getCheck('verificacion_consumibles'),
+            verificacion_estado_oficina: getCheck('verificacion_estado_oficina'),
+            verificacion_cenefa_spot_deck: getCheck('verificacion_cenefa_spot_deck'),
+            limpieza_banios: getCheck('limpieza_banios'),
+            barrido_playa: formData.get('barrido_playa') || '',
+            barrido_vereda: formData.get('barrido_vereda') || '',
+            recorrida_predio: formData.get('recorrida_predio') || '',
+            retiro_basura: formData.get('retiro_basura') || '',
+            repaso_banios_transportistas: formData.get('repaso_banios_transportistas') || '',
+            cenefa_spot: formData.get('cenefa_spot') || '',
+            limpieza_surtidores: formData.get('limpieza_surtidores') || '',
+            limpieza_boca_tanques: formData.get('limpieza_boca_tanques') || '',
+            limpieza_rejillas: formData.get('limpieza_rejillas') || '',
+            limpieza_oficina: formData.get('limpieza_oficina') || '',
+            deck_domingos_viernes: formData.get('deck_domingos_viernes') || ''
+        };
+
+        const historial = getHistorial();
+        historial.push(registro);
+        setHistorial(historial);
+
+        alert(`✅ Turno guardado correctamente en el historial.`);
+        document.querySelector('[data-tab="tab-historial"]').click();
+    });
+
+    // ========== CAMBIO DE PESTAÑAS ==========
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(this.dataset.tab).classList.add('active');
+        });
+    });
+
+    // ========== INICIALIZAR ==========
+    document.addEventListener('DOMContentLoaded', function() {
+        poblarSelects();
+        setFechaActual();
+        actualizarContador();
+        renderizarHistorial();
+    });
+
+    // Exponer funciones para botones en el HTML
+    window.verDetalle = verDetalle;
+    window.eliminarRegistro = eliminarRegistro;
+</script>
+</body>
+</html>
